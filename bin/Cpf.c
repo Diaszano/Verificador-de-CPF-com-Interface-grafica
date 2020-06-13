@@ -18,6 +18,7 @@ GtkBuilder *builder;
 GtkWidget  *window;
 GtkStack   *stack;
 GtkListStore *modelo;
+GtkLabel *label;
 int tam = 0;
 /*********************************************************************************************************************/
 
@@ -31,6 +32,7 @@ void verificacao(int vet[11], int local, int opc);
 void criacao(char cpf[14]);
 void estado(int num);
 void mensagem(char text[100], char secondary_text[100], char icon_name[100]);
+//###########################################################
 void on_main_window_destroy(GtkWidget *widget, gpointer data);
 void on_button_verificar_ini_clicked(GtkWidget *widget, gpointer data);
 void on_button_cria_ini_clicked(GtkWidget *widget, gpointer data);
@@ -39,6 +41,7 @@ void on_button_verificar_cpf_verificar_clicked(GtkWidget *widget, gpointer data)
 void on_button_verificar_cpf_voltar_clicked(GtkWidget *widget, gpointer data);
 void on_button_criacao_cpf_criar_clicked(GtkWidget *widget, gpointer data);
 void on_button_criacao_cpf_voltar_clicked(GtkWidget *widget, gpointer data);
+//###########################################################
 int main(int argc, char *argv[]);
 /*********************************************************************************************************************/
 
@@ -84,7 +87,8 @@ void conversao_char_int(char cpf_char[14], int cpf_int[11]){
         }
     }
     if(i < 11){
-        mensagem("CPF incorreto!", "O CPF nao contem o numero suficiente de numeros", "dialog-error");
+        gtk_label_set_text(label,"CPF inválido!");
+        mensagem("CPF incorreto!", "O CPF correspondente não contém a\n quantidade de números suficientes!", "dialog-error");
         tam = 0;
     }else{
         tam = 1;
@@ -162,15 +166,17 @@ void verificacao(int vet[11], int local, int opc){
         vet[local-1] = resto;
     }
     if(tam){
-        char texto[100],cpf[15];
-        conversao_int_char(cpf,vet);
-        juntar_string("O CPF;  ",cpf, texto);
+        //char texto[100],cpf[15];
+        //conversao_int_char(cpf,vet);
+        //juntar_string("O CPF;  ",cpf, texto);
         if( resto != vet[local - 1]){
-            juntar_string(texto,"  e invalido!",texto);
-            mensagem("Aviso!", texto, "dialog-error");
+            //juntar_string(texto,"  é inválido!",texto);
+            gtk_label_set_text(label,"O CPF é inválido");
+            //mensagem("Aviso!", texto, "dialog-error");
         }else{
-            juntar_string(texto," e valido!",texto);
-            mensagem("Aviso!", texto, "emblem-default");
+            //juntar_string(texto," é válido!",texto);
+            gtk_label_set_text(label,"O CPF é válido");
+            //mensagem("Aviso!", texto, "emblem-default");
         }
     }
     tam = 0;
@@ -252,21 +258,24 @@ void on_button_verificar_cpf_verificar_clicked(GtkWidget *widget, gpointer data)
     char *cad_cpf = gtk_entry_get_text(gtk_builder_get_object(builder, "cad_cpf"));
     int cpf[11];
     int i;
-
+    label = GTK_LABEL(gtk_builder_get_object(builder, "label_verificacao"));
     conversao_char_int(cad_cpf,cpf);
 	verificacao(cpf, 11 , 1);
 }
 void on_button_verificar_cpf_voltar_clicked(GtkWidget *widget, gpointer data){
+    gtk_label_set_text(label," ");
     gtk_stack_set_visible_child_name(stack,"view_inicial");
 }
 void on_button_criacao_cpf_criar_clicked(GtkWidget *widget, gpointer data){
     char texto[100],cpf[15];
-
+    label = GTK_LABEL(gtk_builder_get_object(builder, "label_criacao"));
     criacao(cpf);
-    juntar_string("CPF;  ",cpf,texto);
-    mensagem("CPF criado", texto, "emblem-default");
+    //juntar_string("CPF;  ",cpf,texto);
+    gtk_label_set_text(label,cpf);
+    //mensagem("CPF criado", texto, "emblem-default");
 }
 void on_button_criacao_cpf_voltar_clicked(GtkWidget *widget, gpointer data){
+    gtk_label_set_text(label,"000.000.000-00");
     gtk_stack_set_visible_child_name(stack,"view_inicial");
 }
 //#################################
@@ -289,6 +298,7 @@ int main(int argc, char *argv[]){
         NULL);
 
     gtk_builder_connect_signals(builder,NULL);
+
     stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
     window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
